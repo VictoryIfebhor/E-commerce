@@ -4,7 +4,7 @@ from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
 from dotenv import dotenv_values
 from pydantic import EmailStr
 from typing import List
-from .models import User
+from models import User
 
 config_credentials = dotenv_values(".env")
 print(config_credentials)
