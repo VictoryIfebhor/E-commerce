@@ -40,13 +40,15 @@ TEMPLATE = """
     </head>
     <body>
         <div>
-            <h3>Account Verification</h3>
-            <br>
+            <form method="post" action="/verification?token={token}">
+                <h3>Account Verification</h3>
+                <br>
 
-            <p>Thank you for choosing our e-commerce services. Click the button below to verify your account.</p>
-            <a href="http://127.0.0.1:8000/verification?token={}"><button>Verify</button></a>
+                <p>Thank you for choosing our e-commerce services. Click the button below to verify your account.</p>
+                <input type="submit" value="Verify">
 
-            <p>If you do not recognise any activity like this, kindly ignore the email.</p>
+                <p>If you do not recognise any activity like this, kindly ignore the email.</p>
+            </form>
         </div>
     </body>
     </html>
@@ -65,7 +67,7 @@ async def send_email(email: EmailSchema, instance: User):
     message = MessageSchema(
         subject="Email Verification of account",
         recipients=email,
-        body=TEMPLATE.format(token),
+        body=TEMPLATE.format(token=token),
         subtype="html"
     )
 
