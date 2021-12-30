@@ -198,19 +198,5 @@ database.sqlite3-wal
 #flake8
 tox.ini
 
-### Web ###
-*.asp
-*.cer
-*.csr
-*.css
-*.htm
-*.html
-*.js
-*.jsp
-*.php
-*.rss
-*.wasm
-*.wat
-*.xhtml
 
 # End of https://www.toptal.com/developers/gitignore/api/python,visualstudiocode,git,web,venv,dotenv
