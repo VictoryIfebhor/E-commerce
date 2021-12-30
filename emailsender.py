@@ -7,8 +7,6 @@ from typing import List
 from models import User
 
 config_credentials = dotenv_values(".env")
-print(config_credentials)
-print(config_credentials["SECRET"])
 
 # create configuration for the fastapi-mail
 conf = ConnectionConfig(
