@@ -53,7 +53,7 @@ async def send_email(email: List[EmailStr], instance: User):
         "username": instance.username
     }
 
-    token = jwt.encode(token_data, config_credentials["SECRET"])
+    token = jwt.encode(token_data, config_credentials["SECRET"], algorithm="HS256")
 
     message = MessageSchema(
         subject="Email Verification of account",
