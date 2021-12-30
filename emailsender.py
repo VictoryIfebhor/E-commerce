@@ -2,7 +2,7 @@ import jwt
 
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
 from dotenv import dotenv_values
-from pydantic import BaseModel, EmailStr
+from pydantic import EmailStr
 from typing import List
 from .models import User
 
@@ -21,11 +21,6 @@ conf = ConnectionConfig(
     MAIL_SSL=False,
     USE_CREDENTIALS=True
 )
-
-
-# create the email schema
-class EmailSchema(BaseModel):
-    email: List[EmailStr]
 
 
 # create the body of the message
@@ -56,7 +51,7 @@ TEMPLATE = """
 
 
 # create the function to send the mail
-async def send_email(email: EmailSchema, instance: User):
+async def send_email(email: List[EmailStr], instance: User):
     token_data = {
         "id": instance.id,
         "username": instance.username
