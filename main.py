@@ -16,6 +16,7 @@ async def register_business(
     sender: Type[User], instance: User, created: bool,
     using_db: Optional[BaseDBAsyncClient], update_fields: List[str]
 ):
+    # create a business account for the user
     if created:
         await Business.create(name=instance.username, owner=instance)
 
