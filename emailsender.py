@@ -18,31 +18,9 @@ conf = ConnectionConfig(
     MAIL_TLS=True,
     MAIL_SSL=False,
     USE_CREDENTIALS=True,
-    VALIDATE_CERTS=True
+    VALIDATE_CERTS=True,
+    TEMPLATE_FOLDER="./templates"
 )
-
-
-# create the body of the message
-TEMPLATE = """
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-    </head>
-    <body>
-        <div>
-            <form method="post" action="/verification?token={token}">
-                <h3>Account Verification</h3>
-                <br>
-
-                <p>Thank you for choosing our e-commerce services. Click the button below to verify your account.</p>
-                <input type="submit" value="Verify">
-
-                <p>If you do not recognise any activity like this, kindly ignore the email.</p>
-            </form>
-        </div>
-    </body>
-    </html>
-"""
 
 
 # create the function to send the mail
@@ -52,14 +30,16 @@ async def send_email(email: List[EmailStr], instance: User):
         "username": instance.username
     }
 
-    token = jwt.encode(token_data, config_credentials["SECRET"], algorithm="HS256")
+    body = {
+        "token": jwt.encode(token_data, config_credentials["SECRET"], algorithm="HS256"),
+        "base_url": "http://127.0.0.1:8000"
+    }
 
     message = MessageSchema(
         subject="Email Verification of account",
         recipients=email,
-        body=TEMPLATE.format(token=token),
-        subtype="html"
+        template_body=body
     )
 
     fm = FastMail(conf)
-    await fm.send_message(message)
+    await fm.send_message(message, template_name="verification.html")
