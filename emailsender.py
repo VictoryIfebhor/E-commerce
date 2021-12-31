@@ -17,7 +17,8 @@ conf = ConnectionConfig(
     MAIL_SERVER="smtp.gmail.com",
     MAIL_TLS=True,
     MAIL_SSL=False,
-    USE_CREDENTIALS=True
+    USE_CREDENTIALS=True,
+    VALIDATE_CERTS=True
 )
 
 
