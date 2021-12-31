@@ -15,10 +15,10 @@ def hash_password(password: str):
     return pwd_context.hash(password)
 
 
-def verify_token(token: str):
+async def verify_token(token: str):
     try:
         payload = jwt.decode(token, config_credential["SECRET"], algorithms=["HS256"])
-        user = User.get(id=payload["id"])
+        user = await User.get(id=payload["id"])
         print(type(user))
     except DoesNotExist:
         raise HTTPException(
