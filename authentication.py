@@ -17,7 +17,7 @@ def hash_password(password: str):
 
 async def verify_token(token: str):
     try:
-        payload = jwt.decode(token, config_credential["SECRET"], algorithms=["HS256"])
+        payload = decode_token(token)
         user = await User.get(id=payload["id"])
         print(type(user))
     except DoesNotExist:
@@ -28,3 +28,27 @@ async def verify_token(token: str):
         )
 
     return user
+
+
+async def generate_token(username: str, password: str):
+    user = await User.get(username=username)
+
+    password_correct = pwd_context.verify(password, user.password)
+
+    if (user is None) or (not password_correct):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            details="Invalid Credentials",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
+    token_data = {
+        "id": user.id,
+        "username": user.username
+    }
+
+    return jwt.encode(token_data, config_credential["SECRET"], algorithm="HS256")
+
+
+def decode_token(token: str):
+    return jwt.decode(token, config_credential["SECRET"], algorithms=["HS256"])

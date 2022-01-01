@@ -1,18 +1,20 @@
 from typing import List, Optional, Type
 
-from fastapi import FastAPI, Request, HTTPException, status
+from fastapi import FastAPI, Request, HTTPException, status, Depends
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from tortoise import BaseDBAsyncClient
 from tortoise.contrib.fastapi import register_tortoise
 from tortoise.signals import post_save
 
-from authentication import hash_password, verify_token
+from authentication import hash_password, verify_token, generate_token, decode_token
 from emailsender import send_email
-from models import Business, User, User_Pydantic, UserIn_Pydantic
+from models import Business, Business_Pydantic, User, UserIn_Pydantic, UserOut_Pydantic
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
+oauth2_schema = OAuth2PasswordBearer(tokenUrl="token")
 
 
 @post_save(User)
@@ -38,7 +40,7 @@ async def register_user(user: UserIn_Pydantic):
     user_info = user.dict(exclude_unset=True)
     user_info["password"] = hash_password(user_info["password"])
     user_obj = await User.create(**user_info)
-    new_user: User = await User_Pydantic.from_tortoise_orm(user_obj)
+    new_user: User = await UserOut_Pydantic.from_tortoise_orm(user_obj)
 
     return {
         "status": "ok",
@@ -62,6 +64,36 @@ async def send_confirmation_email(token: str, request: Request):
             detail="Invalid token",
             headers={"WWW-Authenticate": "Bearer"}
         )
+
+
+@app.post("/token")
+async def generate_user_token(request_form: OAuth2PasswordRequestForm = Depends()):
+    token = await generate_token(request_form.username, request_form.password)
+
+    return {"access_token": token, "token_type": "bearer"}
+
+
+async def get_current_user(token: str = Depends(oauth2_schema)):
+    payload = decode_token(token)
+    user = await User.get(id=payload["id"])
+    user_ = await UserOut_Pydantic.from_tortoise_orm(user)
+
+    return user_
+
+
+@app.post("/user/me")
+async def user_login(user: User = Depends(get_current_user)):
+    print(f"The user data is: {user} of datatype: {type(user)}")
+    business = await Business.get(owner=user.id)
+    business_ = await Business_Pydantic.from_tortoise_orm(business)
+
+    return {
+        "status": "ok",
+        "data": {
+            "user": user.dict(),
+            "business": business_.dict()
+        }
+    }
 
 register_tortoise(
     app,
