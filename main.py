@@ -54,7 +54,7 @@ async def register_user(user: UserIn_Pydantic):
     }
 
 
-@app.post("/verification", response_class=HTMLResponse)
+@app.post("/verification", response_class=HTMLResponse, include_in_schema=False)
 async def send_confirmation_email(token: str, request: Request):
     user = await verify_token(token)
 
@@ -72,7 +72,7 @@ async def send_confirmation_email(token: str, request: Request):
         )
 
 
-@app.post("/token")
+@app.post("/token", include_in_schema=False)
 async def generate_user_token(request_form: OAuth2PasswordRequestForm = Depends()):
     token = await generate_token(request_form.username, request_form.password)
 
@@ -87,9 +87,8 @@ async def get_current_user(token: str = Depends(oauth2_schema)):
     return user_
 
 
-@app.post("/user/me")
-async def user_login(user: User = Depends(get_current_user)):
-    print(f"The user data is: {user} of datatype: {type(user)}")
+@app.post("/users/me")
+async def user_details(user: User = Depends(get_current_user)):
     business = await Business.get(owner=user.id)
     business_ = await Business_Pydantic.from_tortoise_orm(business)
 
