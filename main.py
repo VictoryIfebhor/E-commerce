@@ -1,7 +1,6 @@
 from typing import List, Optional, Type
 
 from fastapi import FastAPI, Request, HTTPException, status, Depends, File, UploadFile
-from fastapi.staticfiles import StaticFiles
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -16,7 +15,6 @@ from models import Business, Business_Pydantic, Product, User, UserIn_Pydantic, 
 from file_handler import save_image, delete_image
 
 app = FastAPI()
-app.mount("/static", StaticFiles(directory="static"), name="static")
 
 templates = Jinja2Templates(directory="templates")
 oauth2_schema = OAuth2PasswordBearer(tokenUrl="token")
