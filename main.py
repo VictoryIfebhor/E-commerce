@@ -5,7 +5,7 @@ from fastapi import FastAPI, Request, HTTPException, status, Depends, File, Uplo
 from fastapi.staticfiles import StaticFiles
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from tortoise import BaseDBAsyncClient
 from tortoise.contrib.fastapi import register_tortoise
 from tortoise.exceptions import DoesNotExist
@@ -36,9 +36,9 @@ async def register_business(
     await send_email([instance.email], instance)
 
 
-@app.get("/")
+@app.get("/", response_class=RedirectResponse)
 async def index():
-    return {"Message": "Hello World"}
+    return "http://127.0.0.1:8000/docs"
 
 
 @app.post("/user")
