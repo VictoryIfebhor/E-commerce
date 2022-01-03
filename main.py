@@ -1,4 +1,3 @@
-from os import stat
 from typing import List, Optional, Type
 
 from fastapi import FastAPI, Request, HTTPException, status, Depends, File, UploadFile
