@@ -38,7 +38,7 @@ async def generate_token(username: str, password: str):
     if (user is None) or (not password_correct):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            details="Invalid Credentials",
+            detail="Invalid Credentials",
             headers={"WWW-Authenticate": "Bearer"}
         )
 
