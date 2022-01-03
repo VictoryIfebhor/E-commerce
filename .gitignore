@@ -198,5 +198,7 @@ database.sqlite3-wal
 #flake8
 tox.ini
 
+# Images
+static/images
 
 # End of https://www.toptal.com/developers/gitignore/api/python,visualstudiocode,git,web,venv,dotenv
