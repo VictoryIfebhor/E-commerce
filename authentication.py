@@ -31,11 +31,17 @@ async def verify_token(token: str):
 
 
 async def generate_token(username: str, password: str):
-    user = await User.get(username=username)
+    try:
+        user = await User.get(username=username)
+        password_correct = pwd_context.verify(password, user.password)
+    except DoesNotExist:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Credentials",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
 
-    password_correct = pwd_context.verify(password, user.password)
-
-    if (user is None) or (not password_correct):
+    if not password_correct:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid Credentials",
