@@ -38,8 +38,14 @@ async def index():
     return "http://127.0.0.1:8000/docs"
 
 
-@app.post("/user")
+@app.post("/user", status_code=status.HTTP_201_CREATED)
 async def register_user(user: UserIn_Pydantic):
+    """
+    Create a user with the following information.
+    - **username**: A name that will be unique to the user.
+    - **password**: Something to validate or authenticate the user.
+    - **email**: A valid email address that belongs to the user.
+    """
     user_info = user.dict(exclude_unset=True)
     user_info["password"] = hash_password(user_info["password"])
     user_obj = await User.create(**user_info)
