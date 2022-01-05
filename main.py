@@ -69,7 +69,7 @@ async def send_confirmation_email(token: str, request: Request):
         )
 
 
-@app.post("/token", include_in_schema=False)
+@app.post("/token")
 async def generate_user_token(request_form: OAuth2PasswordRequestForm = Depends()):
     token = await generate_token(request_form.username, request_form.password)
 
