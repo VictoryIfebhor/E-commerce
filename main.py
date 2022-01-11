@@ -32,6 +32,11 @@ async def index():
 
 @app.post("/token", tags=["Authentication"])
 async def generate_user_token(request_form: OAuth2PasswordRequestForm = Depends()):
+    """
+    End point to login or authenticate a user.
+    - The only parameters needed are the username and password.
+    - The username and password should be passed in a form.
+    """
     token = await generate_token(request_form.username, request_form.password)
 
     return {"access_token": token, "token_type": "bearer"}
