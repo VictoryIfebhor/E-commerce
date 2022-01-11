@@ -62,7 +62,7 @@ async def user_details(user: User = Depends(get_current_user)):
     return {
         "status": "ok",
         "data": {
-            "user": user.dict(),
+            "user": user,
             "business": business_.dict()
         }
     }
