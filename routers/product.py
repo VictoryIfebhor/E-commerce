@@ -3,15 +3,12 @@ from tortoise.exceptions import DoesNotExist
 
 from dependencies import get_current_user
 from file_handler import delete_image, save_image
-from models import User, Business, Product, ProductIn_Pydantic, Business_Pydantic
+from models import Product_Pydantic, User, Business, Product, ProductIn_Pydantic, Business_Pydantic
 
-router = APIRouter(
-    prefix="/products",
-    tags=["Products"]
-)
+router = APIRouter(prefix="/products", tags=["products"])
 
 
-@router.post("/product", status_code=status.HTTP_201_CREATED)
+@router.post("/", status_code=status.HTTP_201_CREATED)
 async def add_new_product(product: ProductIn_Pydantic, user: User = Depends(get_current_user)):
     product = product.dict(exclude_unset=True)
 
@@ -46,29 +43,66 @@ async def add_new_product(product: ProductIn_Pydantic, user: User = Depends(get_
     return {"status": "ok", "message": "Successfully added new product"}
 
 
-@router.post("/{id}/image")
-async def upload_product_image(
-    id: int, file: UploadFile = File(...), user: User = Depends(get_current_user)
-):
-    db_filename = await save_image(file)
+@router.get("/")
+async def get_all_products():
+    response = await Product_Pydantic.from_queryset(Product.all())
+    return {"status": "ok", "data": response}
 
-    try:
-        product = await Product.get(id=id)
-    except DoesNotExist:
-        delete_image(db_filename)
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Product does not exist"
-        )
 
-    business = await Business.get(id=product.business)
+@router.get("/{id}")
+async def get_product_by_id(id: int):
+    response = await Product.get(id=id)
+    business = await response.business
+    product = await Product_Pydantic.from_tortoise_orm(response)
+    business_out = await Business_Pydantic.from_tortoise_orm(business)
 
-    if user.id != business.owner:
+    return {
+        "product": product,
+        "business": business_out
+    }
+
+
+@router.delete("/{id}")
+async def delete_product(id: int, user: User = Depends(get_current_user)):
+    business = await Business.get(owner=user.id)
+    product = await Product.get(id=id)
+    product_business = await product.business
+
+    if product_business == business:
+        await product.delete()
+    else:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Not authenticated to perform this action.",
             headers={"WWW-Authenticate": "Bearer"}
         )
+
+    return {"status": "ok", "message": "Successfully deleted product"}
+
+
+@router.post("/{id}/image")
+async def upload_product_image(
+    id: int, file: UploadFile = File(...), user: User = Depends(get_current_user)
+):
+    try:
+        product = await Product.get(id=id)
+    except DoesNotExist:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Product does not exist"
+        )
+
+    business: Business = await product.business
+    owner: User = await business.owner
+
+    if user.id != owner.id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated to perform this action.",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
+    db_filename = await save_image(file)
 
     delete_image(product.image)
     product.image = db_filename
