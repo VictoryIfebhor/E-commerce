@@ -43,4 +43,4 @@ Business_Pydantic = pydantic_model_creator(Business, name="Business")
 BusinessIn_Pydantic = pydantic_model_creator(Business, name="BusinessIn", exclude_readonly=True)
 
 Product_Pydantic = pydantic_model_creator(Product, name="Product")
-ProductIn_Pydantic = pydantic_model_creator(Product, name="ProductIn", exclude_readonly=True)
+ProductIn_Pydantic = pydantic_model_creator(Product, name="ProductIn", exclude_readonly=True, exclude=("discount", "image"))

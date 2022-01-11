@@ -12,7 +12,7 @@ from tortoise.signals import post_save
 
 from authentication import hash_password, verify_token, generate_token, decode_token
 from emailsender import send_email
-from models import Business, Business_Pydantic, Product, User, UserIn_Pydantic, UserOut_Pydantic
+from models import Business, Business_Pydantic, Product, ProductIn_Pydantic, User, UserIn_Pydantic, UserOut_Pydantic
 from file_handler import save_image, delete_image
 
 app = FastAPI()
@@ -156,6 +156,41 @@ async def upload_product_image(
     await product.save()
 
     return {"status": "ok", "message": "Successfully uploaded image."}
+
+
+@app.post("/products", status_code=status.HTTP_201_CREATED)
+async def add_new_product(product: ProductIn_Pydantic, user: User = Depends(get_current_user)):
+    product = product.dict(exclude_unset=True)
+
+    # calculate discount
+    current_price = product["current_price"]
+    original_price = product["original_price"]
+    if current_price < 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The current price set for the product is less than 0.",
+        )
+
+    if original_price <= 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "The original price set for the product is not acceptable. "
+                "Original price has to be greater than 0."
+            )
+        )
+
+    discount = ((original_price - current_price) / original_price) * 100
+    product["discount"] = round(discount)
+
+    # set business for the product
+    business = await Business.get(owner=user.id)
+    product["business"] = business
+    business = await Business_Pydantic.from_tortoise_orm(business)
+
+    await Product.create(**product)
+
+    return {"status": "ok", "message": "Successfully added new product"}
 
 register_tortoise(
     app,
