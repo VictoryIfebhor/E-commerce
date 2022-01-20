@@ -6,7 +6,7 @@ from fastapi_mail.errors import ConnectionErrors as MailConnectionError
 from tortoise import BaseDBAsyncClient
 from tortoise.signals import post_save
 
-from authentication import hash_password
+from security_tools import hash_password
 from dependencies import get_current_user
 from application_tools import send_email
 from models import (
@@ -36,7 +36,8 @@ async def register_business(
     # send verification email to user
     try:
         await send_email([instance.email], instance)
-    except MailConnectionError:
+    except MailConnectionError as e:
+        print(e)
         # If there was any error while sending email, delete user and business
         # This is so the user can register again
         await business.delete()

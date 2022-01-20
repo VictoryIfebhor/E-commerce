@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordBearer
 
-from authentication import decode_token
+from security_tools import decode_token
 from models import User, UserOut_Pydantic
 
 router = APIRouter(prefix="/authenticate")
