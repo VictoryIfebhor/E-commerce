@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status, HTTPException, Depends, UploadFile, File
 from tortoise.exceptions import DoesNotExist
 
-from dependencies import get_current_user
+from dependencies import get_current_verified_user
 from application_tools import delete_image, save_image
 from models import Product_Pydantic, User, Business, Product, ProductIn_Pydantic, Business_Pydantic
 
@@ -9,7 +9,10 @@ router = APIRouter(prefix="/products", tags=["products"])
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-async def add_new_product(product: ProductIn_Pydantic, user: User = Depends(get_current_user)):
+async def add_new_product(
+    product: ProductIn_Pydantic,
+    user: User = Depends(get_current_verified_user)
+):
     product = product.dict(exclude_unset=True)
 
     # calculate discount
@@ -63,7 +66,10 @@ async def get_product_by_id(id: int):
 
 
 @router.delete("/{id}")
-async def delete_product(id: int, user: User = Depends(get_current_user)):
+async def delete_product(
+    id: int,
+    user: User = Depends(get_current_verified_user)
+):
     business = await Business.get(owner=user.id)
     product = await Product.get(id=id)
     product_business = await product.business
@@ -82,7 +88,9 @@ async def delete_product(id: int, user: User = Depends(get_current_user)):
 
 @router.post("/{id}/image")
 async def upload_product_image(
-    id: int, file: UploadFile = File(...), user: User = Depends(get_current_user)
+    id: int,
+    file: UploadFile = File(...),
+    user: User = Depends(get_current_verified_user)
 ):
     try:
         product = await Product.get(id=id)

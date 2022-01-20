@@ -1,6 +1,6 @@
 from fastapi import APIRouter, UploadFile, File, Depends
 
-from dependencies import get_current_user
+from dependencies import get_current_verified_user
 from application_tools import delete_image, save_image
 from models import Business, User
 
@@ -12,7 +12,8 @@ router = APIRouter(
 
 @router.post("/image")
 async def upload_business_image(
-    file: UploadFile = File(...), user: User = Depends(get_current_user)
+    file: UploadFile = File(...),
+    user: User = Depends(get_current_verified_user)
 ):
     db_filename = await save_image(file)
 
