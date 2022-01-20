@@ -78,8 +78,8 @@ async def delete_product(
         await product.delete()
     else:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authenticated to perform this action.",
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Deleting of products not owned by you is forbidden.",
             headers={"WWW-Authenticate": "Bearer"}
         )
 
@@ -105,8 +105,8 @@ async def upload_product_image(
 
     if user.id != owner.id:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authenticated to perform this action.",
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Uploading images of products not owned by you is forbidden.",
             headers={"WWW-Authenticate": "Bearer"}
         )
 
