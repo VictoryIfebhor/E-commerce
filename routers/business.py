@@ -1,7 +1,7 @@
 from fastapi import APIRouter, UploadFile, File, Depends
 
 from dependencies import get_current_user
-from file_handler import delete_image, save_image
+from application_tools import delete_image, save_image
 from models import Business, User
 
 router = APIRouter(

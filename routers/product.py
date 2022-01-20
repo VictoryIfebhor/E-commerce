@@ -2,7 +2,7 @@ from fastapi import APIRouter, status, HTTPException, Depends, UploadFile, File
 from tortoise.exceptions import DoesNotExist
 
 from dependencies import get_current_user
-from file_handler import delete_image, save_image
+from application_tools import delete_image, save_image
 from models import Product_Pydantic, User, Business, Product, ProductIn_Pydantic, Business_Pydantic
 
 router = APIRouter(prefix="/products", tags=["products"])

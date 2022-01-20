@@ -6,7 +6,7 @@ from tortoise.signals import post_save
 
 from authentication import hash_password
 from dependencies import get_current_user
-from emailsender import send_email
+from application_tools import send_email
 from models import (
     Business,
     Business_Pydantic,
