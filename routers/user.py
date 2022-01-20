@@ -1,6 +1,8 @@
 from typing import Type, Optional, List
 
 from fastapi import APIRouter, status, Depends
+from fastapi.exceptions import HTTPException
+from fastapi_mail.errors import ConnectionErrors as MailConnectionError
 from tortoise import BaseDBAsyncClient
 from tortoise.signals import post_save
 
@@ -29,10 +31,21 @@ async def register_business(
 ):
     # create a business account for the user
     if created:
-        await Business.create(name=instance.username, owner=instance)
+        business = await Business.create(name=instance.username, owner=instance)
 
     # send verification email to user
-    await send_email([instance.email], instance)
+    try:
+        await send_email([instance.email], instance)
+    except MailConnectionError:
+        # If there was any error while sending email, delete user and business
+        # This is so the user can register again
+        await business.delete()
+        await instance.delete()
+
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Could not send verification mail to user. Register again later"
+        )
 
 
 @router.post("/user", status_code=status.HTTP_201_CREATED)
