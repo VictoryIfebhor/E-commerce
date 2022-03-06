@@ -31,7 +31,9 @@ async def send_email(email: List[EmailStr], instance: User):
     }
 
     body = {
-        "token": jwt.encode(token_data, config_credentials["SECRET"], algorithm="HS256"),
+        "token": jwt.encode(
+            token_data, config_credentials["SECRET"], algorithm="HS256"
+        ),
         "base_url": "http://127.0.0.1:8000"
     }
 

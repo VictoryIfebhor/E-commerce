@@ -31,7 +31,10 @@ async def register_business(
 ):
     # create a business account for the user
     if created:
-        business = await Business.create(name=instance.username, owner=instance)
+        business = await Business.create(
+            name=instance.username,
+            owner=instance
+        )
 
     # send verification email to user
     try:
@@ -45,7 +48,10 @@ async def register_business(
 
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail="Could not send verification mail to user. Register again later"
+            detail=(
+                "Could not send verification mail to user."
+                "Register again later."
+            )
         )
 
 
@@ -64,7 +70,10 @@ async def register_user(user: UserIn_Pydantic):
 
     return {
         "status": "ok",
-        "data": f"Hi {new_user.username}, Check your email and click the link to complete registration."
+        "data": (
+            f"Hi {new_user.username}, "
+            "Check your email and click the link to complete registration."
+        )
     }
 
 

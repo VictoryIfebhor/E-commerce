@@ -3,7 +3,14 @@ from tortoise.exceptions import DoesNotExist
 
 from dependencies import get_current_verified_user
 from application_tools import delete_image, save_image
-from models import Product_Pydantic, User, Business, Product, ProductIn_Pydantic, Business_Pydantic
+from models import (
+    Product_Pydantic,
+    User,
+    Business,
+    Product,
+    ProductIn_Pydantic,
+    Business_Pydantic
+)
 
 router = APIRouter(prefix="/products", tags=["products"])
 
@@ -106,7 +113,9 @@ async def upload_product_image(
     if user.id != owner.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Uploading images of products not owned by you is forbidden.",
+            detail=(
+                "Uploading images of products not owned by you is forbidden."
+            ),
             headers={"WWW-Authenticate": "Bearer"}
         )
 

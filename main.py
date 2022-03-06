@@ -31,7 +31,9 @@ async def index():
 
 
 @app.post("/token", tags=["Authentication"])
-async def generate_user_token(request_form: OAuth2PasswordRequestForm = Depends()):
+async def generate_user_token(
+    request_form: OAuth2PasswordRequestForm = Depends()
+):
     """
     End point to login or authenticate a user.
     - The only parameters needed are the username and password.
@@ -42,7 +44,11 @@ async def generate_user_token(request_form: OAuth2PasswordRequestForm = Depends(
     return {"access_token": token, "token_type": "bearer"}
 
 
-@app.get("/verification/{token}", response_class=HTMLResponse, include_in_schema=False)
+@app.get(
+    "/verification/{token}",
+    response_class=HTMLResponse,
+    include_in_schema=False
+)
 async def send_confirmation_email(token: str, request: Request):
     user = await verify_token(token)
 
