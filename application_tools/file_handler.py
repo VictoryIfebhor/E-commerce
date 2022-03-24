@@ -17,7 +17,7 @@ def get_stamp():
     return cleaned[::-1]
 
 
-async def save_image(file: UploadFile):
+async def save_image(file: UploadFile) -> str:
     filename: str = file.filename
     last_position = filename.rfind(".")
     extension = filename[last_position:]
