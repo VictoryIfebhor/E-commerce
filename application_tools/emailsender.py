@@ -2,7 +2,6 @@ import jwt
 
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
 from dotenv import dotenv_values
-from pydantic import EmailStr
 from typing import List
 from models import User
 
@@ -24,18 +23,22 @@ conf = ConnectionConfig(
 
 
 # create the function to send the mail
-async def send_email(email: List[EmailStr], instance: User):
+async def send_email(email: List[str], instance: User):
     token_data = {
         "id": instance.id,
         "username": instance.username
     }
 
-    body = {
-        "token": jwt.encode(
-            token_data, config_credentials["SECRET"], algorithm="HS256"
-        ),
-        "base_url": "http://127.0.0.1:8000"
-    }
+    SECRET = config_credentials["SECRET"]
+    if SECRET:
+        body = {
+            "token": jwt.encode(
+                token_data, SECRET, algorithm="HS256"
+            ),
+            "base_url": "http://127.0.0.1:8000"
+        }
+    else:
+        raise Exception("No secret key to encode token")
 
     message = MessageSchema(
         subject="Email Verification of account",
