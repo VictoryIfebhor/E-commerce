@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from datetime import datetime
+from typing import Any, Union
 
 from tortoise import fields, models
 from tortoise.contrib.pydantic import pydantic_model_creator  # type: ignore
@@ -12,6 +15,11 @@ class User(models.Model):
     is_verified = fields.BooleanField(null=False, default=False)
     date_joined = fields.DatetimeField(null=False, default=datetime.utcnow)
 
+    business: fields.ReverseRelation[Business]
+
+
+User_ = Union[User, Any]
+
 
 class Business(models.Model):
     id = fields.IntField(pk=True, index=True)
@@ -22,7 +30,13 @@ class Business(models.Model):
     )
     description = fields.TextField(null=True)
     logo = fields.CharField(null=False, default="default.jpg", max_length=200)
-    owner = fields.ForeignKeyField("models.User", related_name="business")
+    owner: fields.ForeignKeyRelation[User_] = fields.ForeignKeyField(
+        "models.User", related_name="business"
+    )
+    products: fields.ReverseRelation[Product]
+
+
+Business_ = Union[Business, Any]
 
 
 class Product(models.Model):
@@ -36,7 +50,7 @@ class Product(models.Model):
     image = fields.CharField(
         null=False, default="defaultproduct.jpg", max_length=200
     )
-    business = fields.ForeignKeyField(
+    business: fields.ForeignKeyRelation[Business_] = fields.ForeignKeyField(
         "models.Business", related_name="products"
     )
 
