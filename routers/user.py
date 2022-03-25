@@ -3,7 +3,7 @@ from typing import Type, Optional, List
 from fastapi import APIRouter, status, Depends
 from fastapi.exceptions import HTTPException
 from fastapi_mail.errors import ConnectionErrors as MailConnectionError
-from tortoise import BaseDBAsyncClient
+from tortoise import BaseDBAsyncClient  # type: ignore
 from tortoise.signals import post_save
 
 from security_tools import hash_password
@@ -36,23 +36,24 @@ async def register_business(
             owner=instance
         )
 
-    # send verification email to user
-    try:
-        await send_email([instance.email], instance)
-    except MailConnectionError as e:
-        print(e)
-        # If there was any error while sending email, delete user and business
-        # This is so the user can register again
-        await business.delete()
-        await instance.delete()
+        # send verification email to user
+        try:
+            await send_email([instance.email], instance)
+        except MailConnectionError as e:
+            print(e)
+            # If there was any error while sending email,
+            # delete user and business
+            # This is so the user can register again
+            await business.delete()
+            await instance.delete()
 
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=(
-                "Could not send verification mail to user."
-                "Register again later."
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail=(
+                    "Could not send verification mail to user."
+                    "Register again later."
+                )
             )
-        )
 
 
 @router.post("/user", status_code=status.HTTP_201_CREATED)
@@ -66,12 +67,12 @@ async def register_user(user: UserIn_Pydantic):
     user_info = user.dict(exclude_unset=True)
     user_info["password"] = hash_password(user_info["password"])
     user_obj = await User.create(**user_info)
-    new_user: User = await UserOut_Pydantic.from_tortoise_orm(user_obj)
+    new_user = await UserOut_Pydantic.from_tortoise_orm(user_obj)
 
     return {
         "status": "ok",
         "data": (
-            f"Hi {new_user.username}, "
+            f"Hi {new_user.dict()['username']}, "
             "Check your email and click the link to complete registration."
         )
     }
