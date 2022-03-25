@@ -91,3 +91,13 @@ ProductIn_Pydantic = pydantic_model_creator(
     exclude_readonly=True,
     exclude=("discount", "image")
 )
+
+TORTOISE_ORM = {
+    "connections": {"default": "sqlite://database.sqlite3"},
+    "apps": {
+        "models": {
+            "models": ["models.models", "aerich.models"],
+            "default_connection": "default",
+        },
+    },
+}
