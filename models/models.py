@@ -47,7 +47,7 @@ class Product(models.Model):
     current_price = fields.DecimalField(max_digits=12, decimal_places=2)
     discount = fields.IntField()
     discount_expiry_date = fields.DateField(default=datetime.utcnow)
-    image = fields.CharField(
+    image: str = fields.CharField(
         null=False, default="defaultproduct.jpg", max_length=200
     )
     business: fields.ForeignKeyRelation[Business_] = fields.ForeignKeyField(

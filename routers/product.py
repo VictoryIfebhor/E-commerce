@@ -17,10 +17,10 @@ router = APIRouter(prefix="/products", tags=["products"])
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def add_new_product(
-    product: ProductIn_Pydantic,
+    user_product: ProductIn_Pydantic,
     user: User = Depends(get_current_verified_user)
 ):
-    product = product.dict(exclude_unset=True)
+    product: dict = user_product.dict(exclude_unset=True)
 
     # calculate discount
     current_price = product["current_price"]
